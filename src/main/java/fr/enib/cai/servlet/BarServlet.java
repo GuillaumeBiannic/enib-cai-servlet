@@ -61,42 +61,54 @@ public class BarServlet extends HttpServlet {
 	 *      response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	   RequestDispatcher dispatch = null;
-	   
-	  // HTTP POST - model modification
-    String[] uri = request.getRequestURI().split("/");
-    String action = uri[3];
-
-    if ("checkInBeer".equals(action)) {
-      // Gets the id of the beer to delete in the request
-      int beerId = Integer.parseInt(request.getParameter("id"));
+   try {
+  	   RequestDispatcher dispatch = null;
+  	   
+  	  // HTTP POST - model modification
+      System.out.println("URI=" + request.getRequestURI());
+      String[] uri = request.getRequestURI().split("/");
       
-      // Adds the POJO to the list of beers
-      Bar bar = beerBusiness.checkinBeer(beerId, 1);
-
-      // Adds the new beer to the request
-      request.setAttribute("bar", bar);
+      String action = "";
       
-      // Forward to the JSP (JSON FEED)
-      dispatch = request.getRequestDispatcher("/WEB-INF/views/bar-json.jsp");  
-    } else if("checkOutBeer".equals(action)) {
-      // Gets the id of the beer to delete in the request
-      int beerId = Integer.parseInt(request.getParameter("id"));
+      for( String path : uri ){
+        if(path != null && !path.isEmpty()) {
+          action = path;
+        }
+      }
+  
+      if ("checkInBeer".equals(action)) {
+        // Gets the id of the beer to delete in the request
+        Integer beerId = Integer.parseInt(request.getParameter("id"));
+        
+        // Adds the POJO to the list of beers
+        Bar bar = beerBusiness.checkinBeer(beerId, 1);
+  
+        // Adds the new beer to the request
+        request.setAttribute("bar", bar);
+        
+        // Forward to the JSP (JSON FEED)
+        dispatch = request.getRequestDispatcher("/WEB-INF/views/bar-json.jsp");  
+      } else if("checkOutBeer".equals(action)) {
+        // Gets the id of the beer to delete in the request
+        int beerId = Integer.parseInt(request.getParameter("id"));
+        
+        // Adds the POJO to the list of beers
+        Bar bar = beerBusiness.checkoutBeer(beerId, 1);
+  
+        // Adds the new beer to the request
+        request.setAttribute("bar", bar);
+        dispatch = request.getRequestDispatcher("/WEB-INF/views/bar-json.jsp");  
+      }
       
-      // Adds the POJO to the list of beers
-      Bar bar = beerBusiness.checkoutBeer(beerId, 1);
-
-      // Adds the new beer to the request
-      request.setAttribute("bar", bar);
-      dispatch = request.getRequestDispatcher("/WEB-INF/views/bar-json.jsp");  
-    }
-    
-    
-    // Forward to the default JSP (idempotent request)
-    if( dispatch == null) {
-      doGet(request, response);
-    } else {
-      dispatch.forward(request, response);
-    }    
+      
+      // Forward to the default JSP (idempotent request)
+      if( dispatch == null) {
+        doGet(request, response);
+      } else {
+        dispatch.forward(request, response);
+      } 
+    } catch(Exception exp) {
+      exp.printStackTrace();
+    }   
 	}
 }

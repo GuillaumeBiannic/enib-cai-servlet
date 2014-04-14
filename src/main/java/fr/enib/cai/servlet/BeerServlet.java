@@ -67,9 +67,14 @@ public class BeerServlet extends HttpServlet {
 		// HTTP POST - model modification
 		
 		// find the action name ( /beer/add or /beer/delete )
-		// very simple (not robust)
 		String[] uri = request.getRequestURI().split("/");
-		String action = uri[3];
+    String action = "";
+      
+    for( String path : uri ){
+      if(path != null && !path.isEmpty()) {
+        action = path;
+      }
+    }
 
 		if ("add".equals(action)) {
 			//  ADD Beer AJAX request - no idempotent request
